@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import scipy.stats as stats
+from typing import Optional, Callable
+from sklearn.utils import Bunch
 
 from suprb.base import BaseComponent
 from suprb.solution import Solution
