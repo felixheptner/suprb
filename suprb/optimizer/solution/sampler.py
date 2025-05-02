@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Optional, Callable
-
 from sklearn.utils import Bunch
+
 
 from suprb.base import BaseComponent
 from suprb.solution import Solution
@@ -51,6 +51,7 @@ class PDFSolutionSampler(SolutionSampler):
     def __init__(self, pdf: Callable[..., np.ndarray], pdf_args: Optional[Bunch] = None, projected: bool = True):
         if pdf_args is None:
             pdf_args = Bunch()
+
         self.pdf = pdf
         self.pdf_args = pdf_args
         self.projected = projected
