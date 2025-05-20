@@ -38,7 +38,7 @@ def plot_pareto_front(pareto_front: np.ndarray, title: str):
 if __name__ == "__main__":
     random_state = 42
 
-    suprb_iter = 32
+    suprb_iter = 8
 
     spea2 = StrengthParetoEvolutionaryAlgorithm2(
         n_iter=128,
@@ -61,8 +61,13 @@ if __name__ == "__main__":
         early_stopping_delta=0,
         early_stopping_patience=10,
     )
-
-    sc_algos = (nsga2, nsga3, spea2)
+    ga = GeneticAlgorithm()
+    ts = TwoStageSolutionComposition(
+        algorithm_1=ga,
+        algorithm_2=nsga3,
+        switch_iteration=8,
+    )
+    sc_algos = (nsga2, nsga3, spea2, ts)
 
     score_list = []
     time_list = []
