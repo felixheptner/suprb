@@ -38,7 +38,7 @@ def plot_pareto_front(pareto_front: np.ndarray, title: str):
 if __name__ == "__main__":
     random_state = 42
 
-    suprb_iter = 8
+    suprb_iter = 32
 
     spea2 = StrengthParetoEvolutionaryAlgorithm2(
         n_iter=128,

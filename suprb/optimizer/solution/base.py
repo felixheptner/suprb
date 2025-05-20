@@ -201,6 +201,7 @@ class MOSolutionComposition(PopulationBasedSolutionComposition, metaclass=ABCMet
         if self._best_hypervolume < hv:
             self._best_hypervolume = hv
             self._best_pareto_front = self.pareto_front()
+
         if hv_diff > self.early_stopping_delta:
             self._early_stopping_counter = 0
         else:
@@ -214,7 +215,7 @@ class MOSolutionComposition(PopulationBasedSolutionComposition, metaclass=ABCMet
         return False
 
     @abstractmethod
-    def pareto_front(self) -> list[Solution]:
+    def _pareto_front(self) -> list[Solution]:
         pass
 
     def hypervolume(self) -> float:
@@ -222,7 +223,7 @@ class MOSolutionComposition(PopulationBasedSolutionComposition, metaclass=ABCMet
 
     def elitist(self) -> Optional[Solution]:
         """Sample an elitist from the Pareto front"""
-        pf = self.pareto_front()
+        pf = self._pareto_front()
         if len(pf) == 0:
             return None
         return self.sampler(pf, random_state=self.random_state_)
