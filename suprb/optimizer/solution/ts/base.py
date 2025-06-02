@@ -29,15 +29,14 @@ class TwoStageSolutionComposition(SolutionComposition):
     def __init__(
         self,
         algorithm_1: PopulationBasedSolutionComposition,
-        algorithm_2: PopulationBasedSolutionComposition,
-        switch_iteration: int,
+        algorithm_2: Optional[PopulationBasedSolutionComposition] = None,
+        switch_iteration: Optional[int] = None,
         n_iter: int = None,
         init: SolutionInit = RandomInit(),
         archive: SolutionArchive = None,
         random_state: int = None,
         n_jobs: int = None,
         warm_start: bool = True,
-        output_fitness: SolutionFitness = NormalizedMOSolutionFitness(),
     ):
         super().__init__(
             n_iter=n_iter, init=init, archive=archive, random_state=random_state, n_jobs=n_jobs, warm_start=warm_start
@@ -49,21 +48,21 @@ class TwoStageSolutionComposition(SolutionComposition):
         self.step_ = 0
         self.current_algo_ = algorithm_1
 
-        self.output_fitness = output_fitness
-
     def optimize(self, X: np.ndarray, y: np.ndarray, **kwargs) -> Union[Solution, list[Solution], None]:
-        # This is mega hacky but necessary if the initialisation is to be kept in the suprb fit method
+        # This is mega hacky but necessary if the initialization is to be kept in the suprb fit method
         if self.step_ == 0:
             self.algorithm_1.pool_ = self.pool_
-            self.algorithm_2.pool_ = self.pool_
             self.algorithm_1.init.fitness.max_genome_length_ = self.init.fitness.max_genome_length_
-            self.algorithm_2.init.fitness.max_genome_length_ = self.init.fitness.max_genome_length_
+            if self.algorithm_2 is not None:
+                self.algorithm_2.pool_ = self.pool_
+                self.algorithm_2.init.fitness.max_genome_length_ = self.init.fitness.max_genome_length_
 
         self.algorithm_1.random_state = self.random_state
-        self.algorithm_2.random_state = self.random_state
+        if self.algorithm_2 is not None:
+            self.algorithm_2.random_state = self.random_state
         self.random_state_ = check_random_state(self.random_state)
 
-        if self.step_ == self.switch_iteration - 1:
+        if self.algorithm_2 is not None and self.step_ == self.switch_iteration - 1:
             self.current_algo_ = self.algorithm_2
             if self.warm_start:
                 pop = []
