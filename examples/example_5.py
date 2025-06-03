@@ -44,8 +44,8 @@ def plot_pareto_front(pareto_front: np.ndarray, title: str):
 
 if __name__ == "__main__":
     random_state = 42
-    suprb_iter = 4
-    sc_iter = 4
+    suprb_iter = 32
+    sc_iter = 32
 
     spea2 = StrengthParetoEvolutionaryAlgorithm2(
         n_iter=sc_iter,
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         algorithm_2=ga2,
         switch_iteration=suprb_iter,
     )
-    sc_algos = (nsga3, ts)
+    sc_algos = (nsga2, nsga3, spea2, ts)
     logger_list = []
     time_list = []
 
@@ -133,6 +133,6 @@ if __name__ == "__main__":
         spreads = l.metrics_["spread"]
         spread = spreads[suprb_iter - 1]
         plot_pareto_front(pareto_front, f"$HV = {hv:.2f}, \Delta = {spread:.2f}$")
-        plt.show()
+    plt.show()
 
-        ##### Plot Hypervolume #####
+    ##### Plot Hypervolume #####
