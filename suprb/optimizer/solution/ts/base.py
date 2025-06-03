@@ -37,7 +37,6 @@ class TwoStageSolutionComposition(SolutionComposition):
         random_state: int = None,
         n_jobs: int = None,
         warm_start: bool = True,
-        output_fitness: SolutionFitness = NormalizedMOSolutionFitness(),
     ):
         super().__init__(
             n_iter=n_iter, init=init, archive=archive, random_state=random_state, n_jobs=n_jobs, warm_start=warm_start
@@ -48,8 +47,6 @@ class TwoStageSolutionComposition(SolutionComposition):
 
         self.step_ = 0
         self.current_algo_ = algorithm_1
-
-        self.output_fitness = output_fitness
 
     def optimize(self, X: np.ndarray, y: np.ndarray, **kwargs) -> Union[Solution, list[Solution], None]:
         # This is mega hacky but necessary if the initialization is to be kept in the suprb fit method
