@@ -45,12 +45,12 @@ class TwoStageSolutionComposition(SolutionComposition):
         self.algorithm_2 = algorithm_2
         self.switch_iteration = switch_iteration
 
-        self.step_ = 0
+        self._suprb_step = 0
         self.current_algo_ = algorithm_1
 
     def optimize(self, X: np.ndarray, y: np.ndarray, **kwargs) -> Union[Solution, list[Solution], None]:
         # This is mega hacky but necessary if the initialization is to be kept in the suprb fit method
-        if self.step_ == 0:
+        if self._suprb_step == 0:
             self.algorithm_1.pool_ = self.pool_
             self.algorithm_1.init.fitness.max_genome_length_ = self.init.fitness.max_genome_length_
             if self.algorithm_2 is not None:
@@ -62,7 +62,7 @@ class TwoStageSolutionComposition(SolutionComposition):
             self.algorithm_2.random_state = self.random_state
         self.random_state_ = check_random_state(self.random_state)
 
-        if self.algorithm_2 is not None and self.step_ == self.switch_iteration - 1:
+        if self.algorithm_2 is not None and self._suprb_step == self.switch_iteration - 1:
             self.current_algo_ = self.algorithm_2
             if self.warm_start:
                 pop = []
@@ -78,7 +78,13 @@ class TwoStageSolutionComposition(SolutionComposition):
         self.current_algo_.optimize(X, y)
 
         self.population_ = self.current_algo_.population_
-        self.step_ += 1
+
+        # If Early Stopping is supported, get the actual iteration count
+        if hasattr(self.current_algo_, "step_"):
+            self.step_ = self.current_algo_.step_
+        else:
+            self.step_ = self.current_algo_.n_iter
+        self._suprb_step += 1
 
     def elitist(self) -> Optional[Solution]:
         return self.current_algo_.elitist()
