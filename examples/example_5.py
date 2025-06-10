@@ -69,13 +69,9 @@ if __name__ == "__main__":
         early_stopping_patience=10,
     )
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
-    ga2 = GeneticAlgorithm(n_iter=sc_iter)
-    ts = TwoStageSolutionComposition(
-        algorithm_1=ga1,
-        algorithm_2=ga2,
-        switch_iteration=suprb_iter,
-    )
-    sc_algos = (nsga2, nsga3, spea2, ts)
+    ga2 = GeneticAlgorithm(n_iter=sc_iter*2)
+    ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=ga2, switch_iteration=suprb_iter, warm_start=False)
+    sc_algos = (ts,)
     logger_list = []
     time_list = []
 
@@ -92,6 +88,7 @@ if __name__ == "__main__":
 
         X, y = data[:, :8], data[:, 8]
         X, y = sklearn.utils.shuffle(X, y, random_state=random_state)
+        warm_start: bool = (True,)
 
         X = MinMaxScaler(feature_range=(-1, 1)).fit_transform(X)
         y = StandardScaler().fit_transform(y.reshape((-1, 1))).reshape((-1,))
