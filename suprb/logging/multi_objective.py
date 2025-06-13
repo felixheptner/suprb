@@ -27,9 +27,11 @@ class MOLogger(DefaultLogger):
             reference_points = current_front[0].fitness.hv_reference
         else:
             reference_points = np.array([1.0, 1.0])
-        self.pareto_fronts_[iteration] = [
+        current_front = [
             [1 - c_norm(solution.complexity_, n), 1 - pseudo_accuracy(solution.error_)] for solution in current_front
         ]
-        self.log_metric("hypervolume", hypervolume(self.pareto_fronts_[iteration], reference_points), estimator.step_)
-        self.log_metric("spread", spread(self.pareto_fronts_[iteration]), estimator.step_)
-        self.log_metric("sc_iterations", sc._suprb_step, estimator.step_)
+        self.pareto_fronts_[iteration] = current_front
+        current_front = np.array(current_front)
+        self.log_metric("hypervolume", hypervolume(current_front, reference_points), estimator.step_)
+        self.log_metric("spread", spread(current_front), estimator.step_)
+        self.log_metric("sc_iterations", sc.step_, estimator.step_)

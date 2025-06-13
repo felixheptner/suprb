@@ -68,10 +68,17 @@ if __name__ == "__main__":
         early_stopping_delta=0,
         early_stopping_patience=10,
     )
+    nsga3_es = NonDominatedSortingGeneticAlgorithm3(
+        n_iter=sc_iter,
+        population_size=32,
+        sampler=BetaSolutionSampler(),
+        early_stopping_delta=0,
+        early_stopping_patience=10,
+    )
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
     ga2 = GeneticAlgorithm(n_iter=sc_iter*2)
-    ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=ga2, switch_iteration=suprb_iter, warm_start=False)
-    sc_algos = (ts,)
+    ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
+    sc_algos = (ts, nsga3)
     logger_list = []
     time_list = []
 
