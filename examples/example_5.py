@@ -78,7 +78,7 @@ if __name__ == "__main__":
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
     ga2 = GeneticAlgorithm(n_iter=sc_iter*2)
     ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
-    sc_algos = (ts, nsga3)
+    sc_algos = (nsga2, nsga3)
     logger_list = []
     time_list = []
 

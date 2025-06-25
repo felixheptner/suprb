@@ -119,7 +119,8 @@ class NonDominatedSortingGeneticAlgorithm2(MOSolutionComposition):
             intermediate_fitness_values = np.array([solution.fitness_ for solution in intermediate_pop])
             intermediate_pareto_ranks = fast_non_dominated_sort(intermediate_fitness_values)
             intermediate_cds = calculate_crowding_distances(intermediate_fitness_values, intermediate_pareto_ranks)
-            sorting_permutation = np.argsort(intermediate_cds)
+            # Sorting -intermediate_cds to get the sorting permutation that sorts in ascending order
+            sorting_permutation = np.argsort(-intermediate_cds)
             intermediate_pop = [intermediate_pop[index] for index in sorting_permutation]
 
             # At this point the intermediate population is sorted by cds and can now be sorted with a
