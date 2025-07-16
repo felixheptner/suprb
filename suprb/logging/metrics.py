@@ -45,5 +45,5 @@ def spread(pareto_front: np.ndarray):
     """Assumes that the pareto front is sorted by complexity in ascending order."""
     distances = np.linalg.norm(pareto_front[:-1] - pareto_front[1:], axis=1)
     avg_distance = np.mean(distances)
-    np.sum(np.abs(distances - avg_distance) / distances.shape[0] - 1)
-    return np.max(distances)
+    delta = np.sum(np.abs(distances - avg_distance)) / ((len(distances)) * avg_distance)
+    return delta
