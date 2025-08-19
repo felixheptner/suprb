@@ -52,8 +52,8 @@ class Solution(SolutionBase, RegressorMixin):
         self.mixing = mixing
         self.fitness = fitness
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> Solution:
-        pred = self.predict(X, cache=True)
+    def fit(self, X: np.ndarray, y: np.ndarray, cache=True) -> Solution:
+        pred = self.predict(X, cache=cache)
         self.error_ = max(mean_squared_error(y, pred), 1e-4)
         self.input_size_ = self.genome.shape[0]
         self.complexity_ = np.sum(self.genome).item()  # equivalent to np.count_nonzero, but possibly faster
