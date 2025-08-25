@@ -154,6 +154,9 @@ class NonDominatedSortingGeneticAlgorithm3(MOSolutionComposition):
 
             if len(tmp_pop) == self.population_size:
                 self.population_ = tmp_pop
+                # Here we have to check for early stopping as the check at the end of the loop might not be triggered
+                if self.check_early_stopping():
+                    break
                 continue
 
             solutions_left_count = self.population_size - len(next_pop)
