@@ -32,7 +32,7 @@ class BinaryTournament(SolutionSelection):
         selection = []
         pairs = random_state.integers(low=0, high=len(population), size=(n, 2))
         for a, b in pairs:
-            if internal_fitness[a] == internal_fitness[b]:
+            if internal_fitness[a] < internal_fitness[b]:
                 selection.append(population[a])
             else:
                 selection.append(population[b])
