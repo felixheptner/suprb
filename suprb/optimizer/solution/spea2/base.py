@@ -89,7 +89,7 @@ class StrengthParetoEvolutionaryAlgorithm2(MOSolutionComposition):
             self.archive(self.population_)
             internal_fitness_values = np.array([solution.internal_fitness_ for solution in self.archive.population_])
             parents = self.selection(
-                population=self.population_,
+                population=self.archive.population_,
                 n=self.population_size,
                 random_state=self.random_state_,
                 internal_fitness=internal_fitness_values,
