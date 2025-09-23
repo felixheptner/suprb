@@ -44,8 +44,8 @@ def plot_pareto_front(pareto_front: np.ndarray, title: str):
 
 if __name__ == "__main__":
     random_state = 42
-    suprb_iter = 32
-    sc_iter = 32
+    suprb_iter = 2
+    sc_iter = 1
 
     spea2 = StrengthParetoEvolutionaryAlgorithm2(
         n_iter=sc_iter,
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
     ga2 = GeneticAlgorithm(n_iter=sc_iter*2)
     ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
-    sc_algos = (nsga3,)
+    sc_algos = (nsga3, nsga2, spea2, ts, nsga3_es)
     logger_list = []
     time_list = []
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
         model = SupRB(
             n_iter=suprb_iter,
-            rule_discovery=ES1xLambda(n_iter=1000),
+            rule_discovery=ES1xLambda(n_iter=1000, delay=10),
             solution_composition=sc,
             logger=MOLogger(),
             random_state=random_state,
@@ -117,7 +117,6 @@ if __name__ == "__main__":
             verbose=10,
             scoring=["r2", "neg_mean_squared_error"],
             return_estimator=True,
-            fit_params={"cleanup": True},
         )
         end_time = time.time()
         time_list.append(end_time - start_time)

@@ -38,7 +38,7 @@ class EnvironmentalArchive(SolutionArchive):
             while len(self.population_) > self.max_population_size:
                 archive_fitness_values = np.array([solution.fitness_ for solution in self.population_])
                 distances = np.zeros(len(self.population_))
-                candidates_mask = np.ones(len(distances), dtype=np.bool8)
+                candidates_mask = np.ones(len(distances), dtype=np.bool)
                 for k in range(1, len(self.population_)):
                     for i in range(len(self.population_)):
                         distances[i] = distance_to_kth(archive_fitness_values[i], archive_fitness_values, k)
