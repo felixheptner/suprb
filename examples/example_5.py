@@ -76,7 +76,7 @@ if __name__ == "__main__":
         early_stopping_patience=-1,
     )
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
-    ga2 = GeneticAlgorithm(n_iter=sc_iter*2)
+    ga2 = GeneticAlgorithm(n_iter=sc_iter * 2)
     ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
     sc_algos = (nsga3, nsga2, spea2, ts, nsga3_es)
     logger_list = []
