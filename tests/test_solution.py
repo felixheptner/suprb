@@ -139,7 +139,7 @@ class TestSolution(unittest.TestCase):
                 algorithm_1=GeneticAlgorithm(n_iter=2, population_size=2),
                 algorithm_2=NonDominatedSortingGeneticAlgorithm3(n_iter=2, population_size=2),
                 switch_iteration=3,
-                warm_start=False
+                warm_start=False,
             ),
             logger=suprb.logging.stdout.StdoutLogger(),
             verbose=10,
