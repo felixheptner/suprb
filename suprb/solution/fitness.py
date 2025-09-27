@@ -70,7 +70,7 @@ class NormalizedMOSolutionFitness(MultiObjectiveSolutionFitness):
 class SimpleMOSolutionFitness(MultiObjectiveSolutionFitness):
 
     def __call__(self, solution: Solution):
-        return [solution.error_, solution.complexity_]
+        return [solution.complexity_, solution.error_]
 
 
 class ComplexityEmary(ComplexitySolutionFitness):
