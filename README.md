@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/303331999.svg)](https://zenodo.org/badge/latestdoi/303331999)
+[![DOI](ZENODO PLACEHOLDER)](BADGE PLACEHOLDER)
 
 # SupRB with MOO Solution Composition
 
