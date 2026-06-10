@@ -11,6 +11,7 @@ from sklearn.utils import Bunch
 
 from suprb import SupRB
 from suprb.optimizer.rule.es import ES1xLambda
+from suprb.optimizer.solution.moead import MultiObjectiveEvolutionaryAlgorithmDecomposition
 from suprb.optimizer.solution.nsga2 import NonDominatedSortingGeneticAlgorithm2
 from suprb.optimizer.solution.sampler import BetaSolutionSampler, DiversitySolutionSampler
 from suprb.optimizer.solution.spea2 import StrengthParetoEvolutionaryAlgorithm2
@@ -27,25 +28,21 @@ algo_names = {
     StrengthParetoEvolutionaryAlgorithm2: "SPEA2",
     NonDominatedSortingGeneticAlgorithm2: "NSGA-II",
     NonDominatedSortingGeneticAlgorithm3: "NSGA-III",
+    MultiObjectiveEvolutionaryAlgorithmDecomposition: "MOEA/D",
     TwoStageSolutionComposition: "TS",
 }
 
 
-def plot_pareto_front(pareto_front: np.ndarray, title: str):
+def plot_pareto_front(pareto_front: np.ndarray, label: str):
     x = pareto_front[:, 0]
     y = pareto_front[:, 1]
-    plt.step(x, y, linestyle="-", marker="x")
-    plt.title(title)
-    plt.xlabel("Complexity")
-    plt.ylabel("Error")
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
+    plt.step(x, y, linestyle="-", marker="x", where="post", label=label)
 
 
 if __name__ == "__main__":
     random_state = 42
-    suprb_iter = 2
-    sc_iter = 1
+    suprb_iter = 32
+    sc_iter = 32
 
     spea2 = StrengthParetoEvolutionaryAlgorithm2(
         n_iter=sc_iter,
@@ -75,10 +72,17 @@ if __name__ == "__main__":
         early_stopping_delta=0,
         early_stopping_patience=-1,
     )
+    moead = MultiObjectiveEvolutionaryAlgorithmDecomposition(
+        n_iter=sc_iter,
+        population_size=32,
+        sampler=BetaSolutionSampler(),
+        early_stopping_delta=0,
+        early_stopping_patience=-1,
+    )
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
     ga2 = GeneticAlgorithm(n_iter=sc_iter * 2)
     ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
-    sc_algos = (nsga3, nsga2, spea2, ts, nsga3_es)
+    sc_algos = (nsga2, spea2, moead)
     logger_list = []
     time_list = []
 
@@ -95,7 +99,7 @@ if __name__ == "__main__":
 
         X, y = data[:, :8], data[:, 8]
         X, y = sklearn.utils.shuffle(X, y, random_state=random_state)
-        warm_start: bool = (True,)
+        warm_start: bool = True
 
         X = MinMaxScaler(feature_range=(-1, 1)).fit_transform(X)
         y = StandardScaler().fit_transform(y.reshape((-1, 1))).reshape((-1,))
@@ -126,8 +130,8 @@ if __name__ == "__main__":
 
     for t in time_list:
         print(f"Time taken: {t}")
-    axes, plots = plt.subplots()
-    for l in logger_list:
+    fig, ax = plt.subplots(figsize=(8, 6))
+    for sc, l in zip(sc_algos, logger_list):
         ##### Plot Pareto Fronts #####
         pareto_front = l.pareto_fronts_
         pareto_front = np.array(pareto_front[suprb_iter - 1])
@@ -135,7 +139,15 @@ if __name__ == "__main__":
         hv = hvs[suprb_iter - 1]
         spreads = l.metrics_["spread"]
         spread = spreads[suprb_iter - 1]
-        plot_pareto_front(pareto_front, f"$HV = {hv:.2f}, \Delta = {spread:.2f}$")
+        algo_name = algo_names.get(type(sc), sc.__class__.__name__)
+        plot_pareto_front(pareto_front, f"{algo_name} (HV={hv:.2f}, Spread={spread:.2f})")
+    ax.set_title("Pareto fronts of solution composition algorithms")
+    ax.set_xlabel("Complexity")
+    ax.set_ylabel("Error")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.legend(loc="best")
+    fig.tight_layout()
     plt.show()
 
     ##### Plot Hypervolume #####
