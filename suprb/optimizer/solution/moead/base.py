@@ -41,6 +41,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
         self,
         n_iter: int = 32,
         population_size: int = 32,
+        archive_size: int = 32,
         neighborhood_size: int | None = None,
         mutation: SolutionMutation = BitFlips(),
         crossover: SolutionCrossover = NPoint(n=3),
@@ -58,7 +59,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
             n_iter=n_iter,
             population_size=population_size,
             init=init,
-            archive=NonDominatedArchive(),
+            archive=None,    #NonDominatedArchive(archive_size), The current archive implementation does not limit the number of solution giving moead an unfair advantage as it can keep all non-dominated solutions found during optimization
             sampler=sampler,
             random_state=random_state,
             n_jobs=n_jobs,
@@ -74,6 +75,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
         self.crossover = crossover
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
+        self.archive_size = archive_size
 
         # internals initialised in _optimize
         self.weights_ = None
@@ -165,6 +167,14 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
                 break
 
     def pareto_front(self) -> list[Solution]:
-        if not hasattr(self, "archive") or not self.archive or not self.archive.population_:
+        if not hasattr(self, "population_") or not self.population_:
             return []
-        return sorted(self.archive.population_, key=lambda x: x.fitness_[0], reverse=True)
+        if hasattr(self, "archive") and self.archive and self.archive.population_:
+            fitness_values = np.array([solution.fitness_ for solution in self.archive.population_])
+            pareto_ranks = fast_non_dominated_sort(fitness_values)
+            pareto_front = np.array(self.archive.population_)[pareto_ranks == 0]
+        else:
+            fitness_values = np.array([solution.fitness_ for solution in self.population_])
+            pareto_ranks = fast_non_dominated_sort(fitness_values)
+            pareto_front = np.array(self.population_)[pareto_ranks == 0]
+        return sorted(pareto_front, key=lambda x: x.fitness_[0], reverse=True)
