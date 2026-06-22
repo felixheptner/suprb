@@ -1,1 +1,2 @@
 from .base import MultiObjectiveEvolutionaryAlgorithmDecomposition
+from .archive import NonDominatedArchive

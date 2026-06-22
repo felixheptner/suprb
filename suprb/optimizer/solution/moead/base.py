@@ -9,6 +9,7 @@ from suprb.solution.fitness import NormalizedMOSolutionFitness
 
 from suprb.optimizer.solution.nsga2.mutation import SolutionMutation, BitFlips
 from suprb.optimizer.solution.nsga2.crossover import SolutionCrossover, NPoint
+from .archive import NonDominatedArchive
 from ..sampler import SolutionSampler, BetaSolutionSampler
 
 
@@ -57,7 +58,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
             n_iter=n_iter,
             population_size=population_size,
             init=init,
-            archive=None,
+            archive=NonDominatedArchive(),
             sampler=sampler,
             random_state=random_state,
             n_jobs=n_jobs,
@@ -96,7 +97,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
         self.weights_ = rng.dirichlet(np.ones(n_objectives), size=self.population_size)
 
         # compute neighbourhood indices by Euclidean distance in weight space
-        dist = np.linalg.norm(self.weights_[:, None, :] - self.weights_[None, :, :], axis=2)
+        dist = np.linalg.norm(self.weights_[:, np.newaxis, :] - self.weights_[np.newaxis, :, :], axis=2)
         neighbours = np.argsort(dist, axis=1)[:, : self.neighborhood_size]
         self.neighbours_ = neighbours
 
@@ -138,7 +139,6 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
                 # update ideal point
                 ideal_updated = False
                 for m in range(len(self.ideal_point_)):
-                    # For minimization problems a smaller objective improves the ideal point
                     if child.fitness_[m] < self.ideal_point_[m]:
                         self.ideal_point_[m] = child.fitness_[m]
                         ideal_updated = True
@@ -165,9 +165,6 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
                 break
 
     def pareto_front(self) -> list[Solution]:
-        if not hasattr(self, "population_") or not self.population_:
+        if not hasattr(self, "archive") or not self.archive or not self.archive.population_:
             return []
-        fitness_values = np.array([solution.fitness_ for solution in self.population_])
-        pareto_ranks = fast_non_dominated_sort(fitness_values)
-        pareto_front = np.array(self.population_)[pareto_ranks == 0]
-        return sorted(pareto_front, key=lambda x: x.fitness_[0], reverse=True)
+        return sorted(self.archive.population_, key=lambda x: x.fitness_[0], reverse=True)
