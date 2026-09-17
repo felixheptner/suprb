@@ -79,10 +79,19 @@ if __name__ == "__main__":
         early_stopping_delta=0,
         early_stopping_patience=-1,
     )
+    moead_with_archive = MultiObjectiveEvolutionaryAlgorithmDecomposition(
+        n_iter=sc_iter,
+        population_size=32,
+        use_archive=True,
+        sampler=BetaSolutionSampler(),
+        early_stopping_delta=0,
+        early_stopping_patience=-1,
+    )
+
     ga1 = GeneticAlgorithm(n_iter=sc_iter)
     ga2 = GeneticAlgorithm(n_iter=sc_iter * 2)
     ts = TwoStageSolutionComposition(algorithm_1=ga1, algorithm_2=nsga3, switch_iteration=suprb_iter, warm_start=False)
-    sc_algos = (moead, nsga2, spea2)
+    sc_algos = (spea2, moead, moead_with_archive,)
     logger_list: list = []
     time_list: list = []
 
@@ -128,8 +137,6 @@ if __name__ == "__main__":
         logger_list.append(scores["estimator"][0].logger_)
     print("Finished!")
 
-    for t in time_list:
-        print(f"Time taken: {t}")
     fig, ax = plt.subplots(figsize=(8, 6))
     for sc, l in zip(sc_algos, logger_list):
         ##### Plot Pareto Fronts #####
@@ -150,4 +157,8 @@ if __name__ == "__main__":
     fig.tight_layout()
     plt.show()
 
+    print("\nTime taken for each algorithm:")
+    for t in time_list:
+            print(f"Time taken: {t}")
     ##### Plot Hypervolume #####
+    

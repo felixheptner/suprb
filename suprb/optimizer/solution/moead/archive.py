@@ -11,24 +11,18 @@ class NonDominatedArchive(SolutionArchive):
     during local neighborhood updates based on scalarization.
     """
 
-    def __init__(self, max_population_size):
+    def __init__(self):
         super().__init__()
-        self.max_population_size = max_population_size
+        self.pop_complexity_map = {}  # To track unique solutions based on complexity
 
     def __call__(self, new_population: list[Solution]):
-        # Combine new solutions with archived ones
-        combined_population = new_population + self.population_
+
+        for solution in new_population:
+            if self.pop_complexity_map.get(solution.complexity_, None) is None:
+                self.pop_complexity_map[solution.complexity_] = solution
+                continue
+            existing_solution = self.pop_complexity_map[solution.complexity_]
+            if solution.error_ < existing_solution.error_:
+                self.pop_complexity_map[solution.complexity_] = solution
         
-        if not combined_population:
-            return
-        
-        # Extract fitness values and identify non-dominated solutions
-        fitness_values = np.array([solution.fitness_ for solution in combined_population])
-        pareto_ranks = fast_non_dominated_sort(fitness_values)
-        
-        # Keep only Pareto-dominant solutions (rank 0)
-        pareto_solutions = np.array(combined_population)[pareto_ranks == 0]
-        self.population_ = [solution.clone() for solution in pareto_solutions]
-        # Limit the archive size
-        # TODO: Implement a strategy to select which solution to keep if the number of non-dominated solutions exceeds max_population_size that is supported by literature (e.g. crowding distance, hypervolume contribution, etc.)
-        # The current implementation does not limit the number of solution giving moead an unfair advantage as it can keep all non-dominated solutions found during optimization
+        self.population_ = list(self.pop_complexity_map.values())

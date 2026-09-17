@@ -41,7 +41,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
         self,
         n_iter: int = 32,
         population_size: int = 32,
-        archive_size: int = 32,
+        use_archive: bool = False,
         neighborhood_size: int | None = None,
         mutation: SolutionMutation = BitFlips(),
         crossover: SolutionCrossover = NPoint(n=3),
@@ -59,7 +59,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
             n_iter=n_iter,
             population_size=population_size,
             init=init,
-            archive=None,    #NonDominatedArchive(archive_size), The current archive implementation does not limit the number of solution giving moead an unfair advantage as it can keep all non-dominated solutions found during optimization
+            archive=None if not use_archive else NonDominatedArchive(),
             sampler=sampler,
             random_state=random_state,
             n_jobs=n_jobs,
@@ -75,7 +75,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
         self.crossover = crossover
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
-        self.archive_size = archive_size
+        self.use_archive = use_archive
 
         # internals initialised in _optimize
         self.weights_ = None
@@ -162,6 +162,9 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
                         # replace solution k
                         self.population_[k] = child
                         self.scalarized_[k] = g_child
+
+                if self.archive is not None:
+                    self.archive(self.population_)
 
             if self.check_early_stopping():
                 break
