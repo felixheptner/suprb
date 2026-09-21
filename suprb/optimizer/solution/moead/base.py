@@ -59,7 +59,7 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
             n_iter=n_iter,
             population_size=population_size,
             init=init,
-            archive=None if not use_archive else NonDominatedArchive(),
+            archive=NonDominatedArchive() if use_archive else None,
             sampler=sampler,
             random_state=random_state,
             n_jobs=n_jobs,
@@ -163,8 +163,8 @@ class MultiObjectiveEvolutionaryAlgorithmDecomposition(MOSolutionComposition):
                         self.population_[k] = child
                         self.scalarized_[k] = g_child
 
-                if self.archive is not None:
-                    self.archive(self.population_)
+            if self.use_archive:
+                self.archive(self.population_)
 
             if self.check_early_stopping():
                 break
